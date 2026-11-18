@@ -1,9 +1,9 @@
 #-------------------------------------------------------------------------
-# AUTHOR: your name
+# AUTHOR: Thuy An Nguyen
 # FILENAME: inverted_index.py
-# SPECIFICATION: description of the program
+# SPECIFICATION: Implementation of an inverted index for document retrieval
 # FOR: CS 4250 - Assignment #3
-# TIME SPENT: how long it took you to complete the assignment
+# TIME SPENT: start 9:00pm
 #-------------------------------------------------------------------------
 
 # Importing Python libraries
@@ -26,18 +26,27 @@ def getTermFrequencies(text):
 
     # Converting text to lowercase
     # --> add your Python code here
+    text = text.lower()
 
 
     # Removing punctuation
     # --> add your Python code here
-
+    punctuation = "!@#$%^&*()-+"
+    for p in punctuation:
+        text = text.replace(p, "")
 
     # Splitting the text into terms
     # --> add your Python code here
+    terms = text.split()
 
 
     # Returning the term frequencies
     # --> add your Python code here
+    term_frequencies = {}
+    for term in terms:
+        term_frequencies[term] = term_frequencies.get(term, 0) + 1
+
+    return term_frequencies
 
 
 
@@ -49,6 +58,7 @@ def addPosting(term, docId, tf):
 
     # Searching for the term in the inverted index
     # --> add your Python code here
+    
 
 
     # Creating a new term if it does not exist
