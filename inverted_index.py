@@ -86,15 +86,21 @@ def removePosting(term, docId):
 
     # Removing the posting from the term
     # --> add your Python code here
+    inverted_index.update_one(
+        {"term": term},
+        {"$pull": {"postings": {"docId": docId}}}
+    )
 
 
     # Retrieving the term after removing the posting
     # --> add your Python code here
+    updated_term = inverted_index.find_one({"term": term})
 
 
     # Deleting the term if its postings list is empty
     # --> add your Python code here
-
+    if updated_term and not updated_term["postings"]:
+        inverted_index.delete_one({"term": term})
 
 
 #-------------------------------------------------------------------------
