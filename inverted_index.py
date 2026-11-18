@@ -111,14 +111,18 @@ def insertDocument(document):
 
     # Inserting the document into the documents collection
     # --> add your Python code here
+    documents.insert_one(document)
 
 
     # Obtaining the term frequencies
     # --> add your Python code here
+    term_frequencies = getTermFrequencies(document["text"])
 
 
     # Updating the inverted index
     # --> add your Python code here
+    for term, tf in term_frequencies.items():
+        addPosting(term, document["_id"], tf)
 
 
 
@@ -131,23 +135,39 @@ def updateDocument(docId, newText):
 
     # Retrieving the current document
     # --> add your Python code here
+    current_document = documents.find_one({"_id": docId})
 
 
     # Obtaining the old and new term frequencies
     # --> add your Python code here
+    old_term_frequencies = getTermFrequencies(current_document["text"])
+    new_term_frequencies = getTermFrequencies(newText)
 
 
     # Processing terms that existed in the old document
     # --> add your Python code here
+    for term, tf in old_term_frequencies.items():
+        if term in new_term_frequencies:
+            # If the term exists, update its posting
+            inverted_index.update_one(
+                {"term": term, "postings.docId": docId},
+                {"$set": {"postings.$.tf": new_term_frequencies[term]}}
+            )
+        else:
+            # If the term no longer exists, remove its posting
+            removePosting(term, docId)
 
 
     # Processing terms that occur only in the new document
     # --> add your Python code here
+    for term, tf in new_term_frequencies.items():
+        if term not in old_term_frequencies:
+            addPosting(term, docId, tf)
 
 
     # Updating the document text
     # --> add your Python code here
-
+    documents.update_one({"_id": docId}, {"$set": {"text": newText}})
 
 
 #-------------------------------------------------------------------------
@@ -159,18 +179,23 @@ def deleteDocument(docId):
 
     # Retrieving the document before deleting it
     # --> add your Python code here
+    deleted_document = documents.find_one({"_id": docId})
 
 
     # Obtaining the terms contained in the document
     # --> add your Python code here
+    deleted_term_frequencies = getTermFrequencies(deleted_document["text"])
 
 
     # Removing the document from every corresponding posting list
     # --> add your Python code here
+    for term, tf in deleted_term_frequencies.items():
+        removePosting(term, docId)
 
 
     # Deleting the document
     # --> add your Python code here
+    documents.delete_one({"_id": docId})
 
 
 
@@ -217,3 +242,10 @@ deleteDocument(2)
 
 # Operation 6: print the content of the documents and inverted_index collections
 # --> add your Python code here
+print("Documents:")
+for doc in documents.find():
+    print(doc)
+
+print("\nInverted Index:")
+for entry in inverted_index.find():
+    print(entry)
