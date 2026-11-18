@@ -58,15 +58,22 @@ def addPosting(term, docId, tf):
 
     # Searching for the term in the inverted index
     # --> add your Python code here
-    
-
+    existing_term = inverted_index.find_one({"term": term})
 
     # Creating a new term if it does not exist
     # --> add your Python code here
-
+    if not existing_term:
+        inverted_index.insert_one({
+            "term": term,
+            "postings": []
+        })
 
     # Adding a posting if the term already exists
     # --> add your Python code here
+    inverted_index.update_one(
+        {"term": term},
+        {"$push": {"postings": {"docId": docId, "tf": tf}}}
+    )
 
 
 
